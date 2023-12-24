@@ -1,5 +1,6 @@
 package restoran.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,8 +32,8 @@ public class User implements UserDetails {
     private Role role;
     private int experience;
     @ManyToOne(cascade = {CascadeType.DETACH})
+    @JsonIgnore
     private Restaurant uRestaurant;
-
     public User() {
 
     }

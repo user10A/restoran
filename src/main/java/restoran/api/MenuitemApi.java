@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.*;
 import restoran.dto.menutems.AssignToReason;
 import restoran.dto.menutems.MenuitemRequest;
 import restoran.dto.menutems.MenuitemResponse;
+import restoran.dto.menutems.PaginationResponse;
 import restoran.dto.user.SimpleResponse;
+import restoran.entity.Menuitem;
 import restoran.service.MenuitemService;
 
 import java.util.List;
@@ -56,6 +58,29 @@ public class MenuitemApi {
     public ResponseEntity<List<MenuitemResponse>> getAllMenuitems() {
         List<MenuitemResponse> response = menuitemService.getAll();
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'WAITER')")
+    @GetMapping("/pagination")
+    public PaginationResponse pagination(@RequestParam int page, @RequestParam int size){
+        return menuitemService.paginationGetAll(page, size);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'WAITER')")
+    @GetMapping
+    public ResponseEntity<List<Menuitem>> getAll(@RequestParam String search){
+        List<Menuitem> menuItems=menuitemService.getAllS(search);
+        return ResponseEntity.ok(menuItems);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'WAITER')")
+    @GetMapping("/sort")
+    public ResponseEntity<List<Menuitem>> sortByPrice(@RequestParam String ascOrDesc){
+        List<Menuitem> menuItems=menuitemService.sortByPrice(ascOrDesc);
+        return ResponseEntity.ok(menuItems);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'WAITER')")
+    @GetMapping("/filter")
+    public ResponseEntity<List<Menuitem>> filter(@RequestParam Boolean filter){
+        List<Menuitem> menuItems=menuitemService.filterByIsVegetarian(filter);
+        return ResponseEntity.ok(menuItems);
     }
 }
 

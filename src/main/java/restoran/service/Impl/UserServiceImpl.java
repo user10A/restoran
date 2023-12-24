@@ -18,9 +18,7 @@ import restoran.exceptions.ConstraintsViolationException;
 import restoran.exceptions.NotFoundException;
 import restoran.repo.RestaurantRepo;
 import restoran.repo.UserRepo;
-import restoran.service.ReservationService;
 import restoran.service.UserService;
-
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Optional;
@@ -34,12 +32,12 @@ public class UserServiceImpl implements UserService {
     private final JwtService jwtService;
     private final PasswordEncoder encoder;
     private final RestaurantRepo restaurantRepo;
-    private final ReservationService reservationService;
+
     @Override
     public AuthenticationResponse singIn(SignInRequest request) {
-        User user = userRepository.getUserByEmail(request.email()).orElseThrow(
-                () -> new NotFoundException(
-                        "user with email: " + request.email() + " not fount"));
+
+        User user = userRepository.getUserByEmail(request.email()).orElseThrow(() -> new NotFoundException(
+                "user with email: " + request.email() + " not fount"));
         if (request.email().isBlank()) {
             throw new BadCredentialsException("email is blank");
         }
@@ -59,10 +57,17 @@ public class UserServiceImpl implements UserService {
             throw new AlreadyExistsException("User with email: " + request.getEmail() + " already exists!");
         }
 
-        Optional<Restaurant> restaurant = Optional.ofNullable(restaurantRepo.getByName(request.getRestaurantName()).orElseThrow(() -> new NotFoundException("Restaurant with Name:" + request.getRestaurantName() + " not found")));
+        Optional<Restaurant> restaurant = Optional.ofNullable(restaurantRepo.getByName(request.getRestaurantName())
+                .orElseThrow(() -> new NotFoundException("Restaurant with Name:" + request.getRestaurantName() + " not found")));
 
         if (restaurant.isPresent()) {
             checkWaiterConstraints(request.getDateOfBirth(), request.getExperience());
+
+            if (restaurant.get().getNumberOfEmployees() >= 14) {
+                throw new ConstraintsViolationException("The maximum number of employees in the restaurant has been exceeded");
+            }
+
+            restaurantRepo.save(restaurant.get());
 
             User user = User.builder()
                     .firstName(request.getFirstName())
@@ -77,14 +82,18 @@ public class UserServiceImpl implements UserService {
                     .build();
 
             userRepository.save(user);
+
             int updatedNumberOfEmployees = incrementNumberOfEmployees(restaurant.get().getNumberOfEmployees());
             restaurant.get().setNumberOfEmployees(updatedNumberOfEmployees);
-//            reservationService.submitReservation(user, restaurant.get());
+
+            restaurantRepo.save(restaurant.get());
+
             return new SimpleResponse("Your application has been successfully submitted", HttpStatus.OK);
         } else {
             return new SimpleResponse("Restaurant not found", HttpStatus.BAD_REQUEST);
         }
     }
+
 
     @Override
     public SimpleResponse saveAdmin(SignUpAdminRequest request) {
@@ -98,7 +107,6 @@ public class UserServiceImpl implements UserService {
                 .phoneNumber(request.phoneNumber())
                 .experience(request.experience())
                 .build();
-
         userRepository.save(user);
         return new SimpleResponse("added", HttpStatus.OK);
     }
@@ -112,8 +120,13 @@ public class UserServiceImpl implements UserService {
         Optional<Restaurant> restaurant = Optional.ofNullable(restaurantRepo.getByName(request.getRestaurantName()).orElseThrow(() -> new NotFoundException("Restaurant with Name:" + request.getRestaurantName() + " not found")));
 
         if (restaurant.isPresent()) {
+
             checkChefConstraints(request.getDateOfBirth(), request.getExperience());
 
+            if (restaurant.get().getNumberOfEmployees() >= 14) {
+                throw new ConstraintsViolationException("The maximum number of employees in the restaurant has been exceeded");
+            }
+            restaurantRepo.save(restaurant.get());
             User user = User.builder()
                     .firstName(request.getFirstName())
                     .lastName(request.getLastName())
@@ -129,19 +142,22 @@ public class UserServiceImpl implements UserService {
             userRepository.save(user);
             int updatedNumberOfEmployees = incrementNumberOfEmployees(restaurant.get().getNumberOfEmployees());
             restaurant.get().setNumberOfEmployees(updatedNumberOfEmployees);
-//            reservationService.submitReservation(user, restaurant.get());
+            restaurantRepo.save(restaurant.get());
             return new SimpleResponse("Your application has been successfully submitted", HttpStatus.OK);
         } else {
             return new SimpleResponse("Restaurant not found", HttpStatus.BAD_REQUEST);
         }
     }
+
     public int incrementNumberOfEmployees(int currentCount) {
         return currentCount + 1;
     }
+
     public int incrementMinusNumberOfEmployees(int currentCount) {
         return currentCount - 1;
     }
-    private void checkWaiterConstraints(LocalDate dateOfBirth, int experience) throws ConstraintsViolationException{
+
+    private void checkWaiterConstraints(LocalDate dateOfBirth, int experience) throws ConstraintsViolationException {
         int age = calculateAge(dateOfBirth);
         if (age < 18 || age > 30 || experience <= 0) {
             throw new ConstraintsViolationException("Waiter must be between 18 and 30 years old and have more than 1 year of experience");
@@ -163,17 +179,22 @@ public class UserServiceImpl implements UserService {
     public SimpleResponse deleteUser(String email) {
         User user = userRepository.getUserByEmail(email).orElseThrow(
                 () -> new NotFoundException(
-                        "user with email: " + email + " not fount"));
+                        "user with email: " + email + " not found"));
         if (email.isBlank()) {
             throw new BadCredentialsException("email is blank");
         }
-        Restaurant restaurant = userRepository.getByIdRestaurantByUserId(user.getId());
-        int updatedNumberOfEmployees = incrementMinusNumberOfEmployees(restaurant.getNumberOfEmployees());
-        restaurant.setNumberOfEmployees(updatedNumberOfEmployees);
-//        user.setURestaurant(null);
+
+        Restaurant restaurant = user.getURestaurant();
+        if (restaurant != null) {
+            int updatedNumberOfEmployees = incrementMinusNumberOfEmployees(restaurant.getNumberOfEmployees());
+            restaurant.setNumberOfEmployees(updatedNumberOfEmployees);
+            restaurantRepo.save(restaurant);
+        }
+
         userRepository.delete(user);
-        return new SimpleResponse("User successfully deleted !", HttpStatus.OK);
+        return new SimpleResponse("Пользователь успешно удален!", HttpStatus.OK);
     }
+
 
     @Override
     public SimpleResponse update(SignUpRequest request) {
@@ -190,5 +211,4 @@ public class UserServiceImpl implements UserService {
         log.info("Saving");
         return new SimpleResponse("User successfully updated !", HttpStatus.OK);
     }
-
 }

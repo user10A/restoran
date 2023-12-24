@@ -1,5 +1,6 @@
 package restoran.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,10 +18,11 @@ public class Subcategory {
     private Long id;
     private String name;
     @OneToMany(mappedBy = "mSubcategory",cascade = {CascadeType.REMOVE})
+    @JsonIgnore
     private List<Menuitem>subMenus;
     @ManyToOne()
+    @JsonIgnore
     private Category sCategory;
     public Subcategory() {
-
     }
 }

@@ -14,4 +14,8 @@ public interface ChequeRepo extends JpaRepository<Cheque,Long> {
 
     @Query("select new restoran.dto.cheque.ChequeResponse2(u.cMenus) from Cheque u")
     List<ChequeResponse> getALL();
+
+    @Query("select c from Cheque c where c.cUser.email= :email")
+    List<Cheque> getChequeByWaiterEmail(String email);
+
 }

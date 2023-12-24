@@ -1,5 +1,6 @@
 package restoran.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,6 +24,7 @@ public class Restaurant {
     @OneToMany(mappedBy = "mRestaurant",cascade = {CascadeType.REMOVE})
     private List<Menuitem>rMenus;
     @OneToMany(mappedBy = "uRestaurant", cascade = {CascadeType.REMOVE})
+    @JsonIgnore
     List<User>rUsers;
     public Restaurant() {
     }

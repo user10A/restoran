@@ -11,7 +11,6 @@ import restoran.exceptions.AlreadyExistsException;
 import restoran.exceptions.NotFoundException;
 import restoran.repo.CategoryRepo;
 import restoran.repo.SubcategoryRepo;
-import restoran.service.CategoryService;
 import restoran.service.SubcategoryService;
 
 import java.util.List;
@@ -21,16 +20,30 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SubcategoryServiceImpl implements SubcategoryService {
     private final SubcategoryRepo subcategoryRepo;
-    private final CategoryService categoryService;
     private final CategoryRepo categoryRepo;
+
+    @Override
+    public List<Subcategory> getAllS(String categoryName) {
+        List<Subcategory> category=subcategoryRepo.getAllCategoryName(categoryName);
+
+        if(category.isEmpty()){
+            throw new NullPointerException("Category by name"+categoryName +" is not found");
+        }
+        return category;
+    }
+
+    @Override
+    public List<Subcategory> getBySearch(String search) {
+        return subcategoryRepo.getBySearch(search);
+    }
+
     @Override
     public SimpleResponse add(SubCategoryRequest request) {
         if (subcategoryRepo.existsByName(request.getName())) {
             throw new AlreadyExistsException(
                     "Subcategory with name: " + request.getName() + " already exists in category: ");
         }
-        Category category = categoryRepo.getByName(request.getCategoryName()).orElseThrow(()->new NotFoundException("Category with by Name:"+request.getCategoryName()+"not found"));
-        // Создаем и сохраняем подкатегорию
+        Category category = categoryRepo.getByName(request.getCategoryName()).orElseThrow(() -> new NotFoundException("Category with by Name:" + request.getCategoryName() + "not found"));
         Subcategory subcategory = Subcategory.builder()
                 .name(request.getName())
                 .sCategory(category)

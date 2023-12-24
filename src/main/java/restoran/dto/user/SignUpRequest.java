@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import restoran.enums.Role;
+import restoran.valid.validation.EmailValidation;
+import restoran.valid.validation.PasswordValidation;
+import restoran.valid.validation.PhoneNumberValidation;
 
 import java.time.LocalDate;
 
@@ -23,19 +26,19 @@ public class SignUpRequest {
         @NotNull(message = "Date of Birth")
         private LocalDate dateOfBirth;
 
-        @NotNull(message = "Email")
-        private String email;
+        @EmailValidation
+        String email;
 
-        @NotNull(message = "Come up with a password")
-        private String password;
+        @PasswordValidation
+        String password;
 
-        @NotNull(message = "Phone number")
-        private String phoneNumber;
+        @PhoneNumberValidation
+        String phoneNumber;
 
         @NotNull(message = "Experience")
         private int experience;
 
-        @NotNull(message = "Please write the name of the restaurant where you want to work")
+        @NotNull(message = "Please write down how many years you have worked")
         private String restaurantName;
 
         public SignUpRequest(String firstName, String lastName, LocalDate dateOfBirth, String email, String password, String phoneNumber, int experience, String restaurantName) {

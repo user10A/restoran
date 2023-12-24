@@ -18,8 +18,7 @@ public class UserApi {
     public AuthenticationResponse signIn(@RequestBody SignInRequest request) {
         return userService.singIn(request);
     }
-
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("hasAnyAuthority('CHEF', 'WAITER')")
     @PatchMapping("/update")
     public SimpleResponse update(@RequestBody SignUpRequest request) {
         return userService.update(request);
@@ -30,12 +29,12 @@ public class UserApi {
     public SimpleResponse delete(@RequestParam String email) {
         return userService.deleteUser(email);
     }
-    @PermitAll
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/register/waiter")
-    public SimpleResponse registerWaiter(@RequestBody SignUpRequest request) {
+    public SimpleResponse registerWaiter(@RequestBody SignUpRequest request){
         return userService.saveWaiter(request);
     }
-    @PermitAll
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/register/chef")
     public SimpleResponse registerChef(@RequestBody SignUpRequest request) {
         return userService.saveChef(request);

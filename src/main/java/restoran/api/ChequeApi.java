@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import restoran.dto.cheque.ChequeRequest;
 import restoran.dto.cheque.ChequeResponse;
 import restoran.dto.user.SimpleResponse;
+import restoran.entity.Cheque;
 import restoran.service.ChequeService;
 
 import java.util.List;
@@ -19,20 +20,20 @@ public class ChequeApi {
     private final ChequeService chequeService;
 
     @PostMapping("/add")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'WAITER')")
+    @PreAuthorize("hasAnyAuthority('WAITER')")
     public ChequeResponse addCheque(@RequestBody ChequeRequest request) {
         return chequeService.add(request);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'WAITER')")
+    @PreAuthorize("hasAnyAuthority('WAITER')")
     public ResponseEntity<SimpleResponse> deleteCheque(@PathVariable Long id) {
         SimpleResponse response = chequeService.delete(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PutMapping("/update/{id}")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'WAITER')")
+    @PreAuthorize("hasAnyAuthority('WAITER')")
     public ResponseEntity<ChequeResponse> updateCheque(@PathVariable Long id, @RequestBody ChequeRequest request) {
         ChequeResponse response = chequeService.update(id, request);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -51,5 +52,12 @@ public class ChequeApi {
         List<ChequeResponse> response = chequeService.getAll();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+    @GetMapping("/getChequeByWaiter")
+    @PreAuthorize("hasAnyAuthority('WAITER')")
+    public ResponseEntity<List<Cheque>> getChequeByWaiter() {
+        List<Cheque> response = chequeService.getChequeByWaiter();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 }
 

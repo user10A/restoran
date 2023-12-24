@@ -5,14 +5,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import restoran.dto.category.CategoryRequest;
 import restoran.dto.category.CategoryResponse;
-import restoran.dto.restaurant.RestaurantResponse;
 import restoran.dto.user.SimpleResponse;
 import restoran.entity.Category;
 import restoran.exceptions.AlreadyExistsException;
 import restoran.exceptions.NotFoundException;
 import restoran.repo.CategoryRepo;
 import restoran.service.CategoryService;
-
 import java.util.List;
 import java.util.Optional;
 

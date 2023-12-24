@@ -1,28 +1,28 @@
 package restoran.service.Impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import restoran.dto.menutems.AssignToReason;
 import restoran.dto.menutems.MenuitemRequest;
 import restoran.dto.menutems.MenuitemResponse;
-import restoran.dto.restaurant.RestaurantResponse;
-import restoran.dto.stopList.StopListResponse;
-import restoran.dto.stopList.StopListResponse2;
-import restoran.dto.subCategory.SubCategoryResponse;
+import restoran.dto.menutems.PaginationResponse;
 import restoran.dto.user.SimpleResponse;
 import restoran.entity.Menuitem;
 import restoran.entity.Restaurant;
 import restoran.entity.StopList;
 import restoran.entity.Subcategory;
 import restoran.exceptions.AlreadyExistsException;
+import restoran.exceptions.BadCredentialsException;
 import restoran.exceptions.NotFoundException;
 import restoran.repo.MenuitemRepo;
 import restoran.repo.RestaurantRepo;
 import restoran.repo.StopListRepo;
 import restoran.repo.SubcategoryRepo;
 import restoran.service.MenuitemService;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -131,5 +131,35 @@ public class MenuitemServiceImpl implements MenuitemService {
     @Override
     public List<MenuitemResponse> getAll() {
         return menuitemRepo.getAll();
+    }
+
+    @Override
+    public PaginationResponse paginationGetAll(int page, int size) {
+        Pageable pageable= PageRequest.of(page-1, size);
+        Page<Menuitem> menu=menuitemRepo.getMenus(pageable);
+        return PaginationResponse.builder()
+                .menuItems(menu.getContent())
+                .page(menu.getNumber()+1)
+                .size(menu.getSize())
+                .build();
+    }
+
+    @Override
+    public List<Menuitem> getAllS(String search) {
+        return menuitemRepo.getAllSearch(search);
+    }
+
+    @Override
+    public List<Menuitem> sortByPrice(String ascOrDesc) {
+        if (ascOrDesc.equalsIgnoreCase("asc")){
+            return menuitemRepo.sortByPriceAsc();
+        } else if (ascOrDesc.equalsIgnoreCase("desc")) {
+            return menuitemRepo.sortByPriceDesc();
+        }
+        throw new BadCredentialsException("Write correct input!");    }
+
+    @Override
+    public List<Menuitem> filterByIsVegetarian(Boolean filter) {
+        return menuitemRepo.filter(filter);
     }
 }

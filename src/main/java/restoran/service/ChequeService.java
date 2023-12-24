@@ -5,6 +5,7 @@ import restoran.dto.category.CategoryResponse;
 import restoran.dto.cheque.ChequeRequest;
 import restoran.dto.cheque.ChequeResponse;
 import restoran.dto.user.SimpleResponse;
+import restoran.entity.Cheque;
 
 import java.util.List;
 
@@ -14,4 +15,5 @@ public interface ChequeService {
     ChequeResponse update (Long id, ChequeRequest request);
     ChequeResponse getById (Long id);
     List<ChequeResponse> getAll ();
+    List<Cheque> getChequeByWaiter();
 }
