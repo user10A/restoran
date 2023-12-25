@@ -5,7 +5,6 @@ import restoran.dto.user.*;
 public interface UserService {
     AuthenticationResponse singIn(SignInRequest request);
     SimpleResponse saveWaiter(SignUpRequest request);
-    SimpleResponse saveAdmin(SignUpAdminRequest request);
     SimpleResponse saveChef(SignUpRequest request);
     SimpleResponse deleteUser (String email);
     SimpleResponse update (SignUpRequest request);

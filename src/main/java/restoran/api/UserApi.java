@@ -39,10 +39,5 @@ public class UserApi {
     public SimpleResponse registerChef(@RequestBody SignUpRequest request) {
         return userService.saveChef(request);
     }
-    @PermitAll
-    @PostMapping("/register/admin")
-    public SimpleResponse registerChef(@RequestBody SignUpAdminRequest request) {
-        return userService.saveAdmin(request);
-    }
 }
 

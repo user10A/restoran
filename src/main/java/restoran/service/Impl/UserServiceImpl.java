@@ -1,5 +1,6 @@
 package restoran.service.Impl;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -92,23 +93,6 @@ public class UserServiceImpl implements UserService {
         } else {
             return new SimpleResponse("Restaurant not found", HttpStatus.BAD_REQUEST);
         }
-    }
-
-
-    @Override
-    public SimpleResponse saveAdmin(SignUpAdminRequest request) {
-        User user = User.builder()
-                .firstName(request.firstName())
-                .lastName(request.lastName())
-                .email(request.email())
-                .password(encoder.encode(request.password()))
-                .dateOfBirth(request.dateOfBirth())
-                .role(Role.ADMIN)
-                .phoneNumber(request.phoneNumber())
-                .experience(request.experience())
-                .build();
-        userRepository.save(user);
-        return new SimpleResponse("added", HttpStatus.OK);
     }
 
     @Override
@@ -210,5 +194,20 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         log.info("Saving");
         return new SimpleResponse("User successfully updated !", HttpStatus.OK);
+    }
+    @PostConstruct
+    public void initAdmin() {
+        User user = new User();
+        user.setFirstName("erkin");
+        user.setLastName("toigonbaev");
+        user.setDateOfBirth(LocalDate.of(2003,3,13));
+        user.setEmail("erkin@gmail.com");
+        user.setPassword(encoder.encode("erkin"));
+        user.setRole(Role.ADMIN);
+        user.setPhoneNumber("+996999999999");
+        user.setExperience(5);
+        if (!userRepository.existsByEmail(user.getEmail())) {
+            userRepository.save(user);
+        }
     }
 }
